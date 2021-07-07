@@ -13,11 +13,16 @@
           input#theme1.switch__item(type="radio", name="theme")
           input#theme2.switch__item(type="radio", name="theme")
           input#theme3.switch__item(type="radio", name="theme")
-  .screen 00,00
+  .screen(v-text="this.$parent.content")
 </template>
 
 <script>
 export default {
+  data() {
+    return {
+      operation: "00,00",
+    };
+  },
   name: "Top",
 };
 </script>

@@ -14,6 +14,11 @@ export default {
     Top,
     Buttons,
   },
+  data() {
+    return {
+      content: "",
+    };
+  },
 };
 </script>
 
