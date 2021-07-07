@@ -29,13 +29,37 @@ export default {
   },
   methods: {
     addOperation(operation) {
+      if (this.$parent.content.length == 0 && operation != "-") {
+        return;
+      }
+
+      if (this.$parent.content.length == 1 && this.$parent.content == "-") {
+        this.reset();
+        return;
+      }
+
       if (
+        (this.$parent.content.substr(this.$parent.content.length - 1) == "*" ||
+          this.$parent.content.substr(this.$parent.content.length - 1) ==
+            "/") &&
+        operation == "-"
+      ) {
+        this.$parent.content += operation;
+        this.operations.push(operation);
+        return;
+      } else if (
         this.$parent.content.substr(this.$parent.content.length - 1) == "+" ||
         this.$parent.content.substr(this.$parent.content.length - 1) == "-" ||
         this.$parent.content.substr(this.$parent.content.length - 1) == "*" ||
         this.$parent.content.substr(this.$parent.content.length - 1) == "/"
       ) {
         this.del();
+        if (
+          this.$parent.content.substr(this.$parent.content.length - 1) == "*" ||
+          this.$parent.content.substr(this.$parent.content.length - 1) == "/"
+        ) {
+          this.del();
+        }
       }
       this.$parent.content += operation;
       this.operations.push(operation);
@@ -71,6 +95,14 @@ export default {
       this.operations = [];
     },
     result() {
+      if (
+        this.$parent.content.substr(this.$parent.content.length - 1) == "+" ||
+        this.$parent.content.substr(this.$parent.content.length - 1) == "-" ||
+        this.$parent.content.substr(this.$parent.content.length - 1) == "*" ||
+        this.$parent.content.substr(this.$parent.content.length - 1) == "/"
+      ) {
+        this.del();
+      }
       this.$parent.content = eval(this.$parent.content).toString();
       this.operations = [];
     },
