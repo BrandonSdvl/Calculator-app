@@ -40,6 +40,7 @@ export default {
     return {
       picked: "theme1",
       currentTheme: {},
+      theme: [],
       theme1: {
         "--main-background": "hsl(222, 26%, 31%)",
         "--second-background": "hsl(223, 31%, 20%)",
@@ -114,6 +115,8 @@ export default {
       for (const style of customStyles) {
         styles.setProperty(style, this.currentTheme[style]);
       }
+
+      this.saveTheme();
     },
   },
   methods: {
@@ -126,6 +129,26 @@ export default {
         this.picked = "theme1";
       }
     },
+    saveTheme() {
+      this.theme = { theme: this.picked };
+      localStorage.setItem("theme", JSON.stringify(this.theme));
+    },
+  },
+  created() {
+    if (localStorage.getItem("theme")) {
+      this.theme = JSON.parse(localStorage.getItem("theme"));
+      this.picked = this.theme.theme;
+    } else {
+      const userPrefersLight =
+        window.matchMedia &&
+        window.matchMedia("(prefers-color-scheme: light)").matches;
+      if (userPrefersLight) {
+        this.picked = "theme2";
+      } else {
+        this.picked = "theme1";
+      }
+      this.saveTheme();
+    }
   },
   name: "Top",
 };
