@@ -5,7 +5,17 @@
     display: grid;
     grid-template-columns: repeat(4, 1fr);
     grid-gap: 13px 10px;
-    max-width: 85vw;
+    width: 85vw;
+
+    @include tablet {
+        width: 55vw;
+        grid-gap: 18px 15px;
+    }
+
+    @include laptop {
+        width: 35vw;
+        grid-gap: 21px 18px;
+    }
 
     &__item {
         font-size: 32px;
