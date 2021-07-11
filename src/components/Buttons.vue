@@ -29,11 +29,15 @@ export default {
   },
   methods: {
     addOperation(operation) {
+      this.checkInvalid();
       if (this.$parent.content.length == 0 && operation != "-") {
         return;
       }
 
       if (this.$parent.content.length == 1 && this.$parent.content == "-") {
+        if (operation == "-") {
+          return;
+        }
         this.reset();
         return;
       }
@@ -54,20 +58,64 @@ export default {
         this.$parent.content.substr(this.$parent.content.length - 1) == "/"
       ) {
         this.del();
-        if (
-          this.$parent.content.substr(this.$parent.content.length - 1) == "*" ||
-          this.$parent.content.substr(this.$parent.content.length - 1) == "/"
-        ) {
-          this.del();
-        }
+        this.addOperation(operation);
+        return;
       }
+
+      if (this.$parent.content == "." || this.$parent.content == "-.") {
+        this.reset();
+        return;
+      } else if (
+        this.$parent.content.substr(this.$parent.content.length - 2) == "+." ||
+        this.$parent.content.substr(this.$parent.content.length - 2) == "-." ||
+        this.$parent.content.substr(this.$parent.content.length - 2) == "*." ||
+        this.$parent.content.substr(this.$parent.content.length - 2) == "/."
+      ) {
+        this.del();
+        this.del();
+        this.addOperation(operation);
+        return;
+      }
+
       this.$parent.content += operation;
       this.operations.push(operation);
     },
     addNumber(number) {
+      if (number == "0") {
+        if (
+          this.$parent.content.substr(this.$parent.content.length - 2) ==
+            "+0" ||
+          this.$parent.content.substr(this.$parent.content.length - 2) ==
+            "-0" ||
+          this.$parent.content.substr(this.$parent.content.length - 2) ==
+            "*0" ||
+          this.$parent.content.substr(this.$parent.content.length - 2) ==
+            "/0" ||
+          this.$parent.content == "0"
+        ) {
+          return;
+        }
+      } else {
+        if (
+          this.$parent.content.substr(this.$parent.content.length - 2) ==
+            "+0" ||
+          this.$parent.content.substr(this.$parent.content.length - 2) ==
+            "-0" ||
+          this.$parent.content.substr(this.$parent.content.length - 2) ==
+            "*0" ||
+          this.$parent.content.substr(this.$parent.content.length - 2) ==
+            "/0" ||
+          this.$parent.content == "0"
+        ) {
+          this.del();
+        }
+      }
+      this.checkInvalid();
       this.$parent.content += number;
     },
     del() {
+      this.checkInvalid();
+
       let last = this.$parent.content.substring(
         this.$parent.content.length - 1,
         this.$parent.content.length
@@ -96,6 +144,19 @@ export default {
     },
     result() {
       if (
+        this.$parent.content.substr(this.$parent.content.length - 1) == "." ||
+        this.$parent.content.substr(this.$parent.content.length - 1) == "-"
+      ) {
+        this.del();
+        this.result();
+        return;
+      }
+
+      if (this.$parent.content.length == 0) {
+        return;
+      }
+
+      if (
         this.$parent.content.substr(this.$parent.content.length - 1) == "+" ||
         this.$parent.content.substr(this.$parent.content.length - 1) == "-" ||
         this.$parent.content.substr(this.$parent.content.length - 1) == "*" ||
@@ -105,6 +166,15 @@ export default {
       }
       this.$parent.content = eval(this.$parent.content).toString();
       this.operations = [];
+    },
+    checkInvalid() {
+      if (
+        this.$parent.content.toLowerCase() == "nan" ||
+        this.$parent.content.toLowerCase() == "infinity" ||
+        this.$parent.content.toLowerCase() == "error"
+      ) {
+        this.reset();
+      }
     },
   },
 };
