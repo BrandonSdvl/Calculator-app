@@ -1,6 +1,6 @@
 <template lang="pug">
 .top
-  header.header
+  header.header(role="banner") 
     h1.header__title calc
     .header__switch
       h2.header__subtitle Theme
@@ -31,7 +31,7 @@
             v-model="picked",
             value="theme3"
           )
-  .screen(v-text="this.$parent.content")
+  .screen(role="region", v-text="this.$parent.content")
 </template>
 
 <script>

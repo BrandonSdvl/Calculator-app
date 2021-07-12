@@ -38,6 +38,7 @@ body {
 
     &__item {
         text-decoration: none;
+        color: var(--top-font-color);
 
         &:visited {
             color: var(--top-font-color);

@@ -1,5 +1,5 @@
 <template lang="pug">
-.buttons
+main.buttons(role="main")
   button.buttons__item(v-on:click="addNumber('7')") 7
   button.buttons__item(v-on:click="addNumber('8')") 8
   button.buttons__item(v-on:click="addNumber('9')") 9
