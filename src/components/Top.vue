@@ -1,6 +1,6 @@
 <template lang="pug">
 .top
-  header.header(role="banner") 
+  header.header
     h1.header__title calc
     .header__switch
       h2.header__subtitle Theme

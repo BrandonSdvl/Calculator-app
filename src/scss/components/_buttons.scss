@@ -10,11 +10,12 @@
     @include tablet {
         width: 55vw;
         grid-gap: 18px 15px;
+        padding: 25px;
     }
 
     @include laptop {
         width: 35vw;
-        grid-gap: 21px 18px;
+        grid-gap: 23px 18px;
     }
 
     &__item {
