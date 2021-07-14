@@ -22,19 +22,25 @@ main.buttons
 <script>
 export default {
   name: "Buttons",
+  props: {
+    content: {
+      type: String,
+      default: "",
+    },
+  },
   data() {
     return {
       operations: [],
     };
   },
   methods: {
-    addOperation(operation) {
-      this.checkInvalid();
-      if (this.$parent.content.length == 0 && operation != "-") {
+    async addOperation(operation) {
+      await this.checkInvalid();
+      if (this.content.length == 0 && operation != "-") {
         return;
       }
 
-      if (this.$parent.content.length == 1 && this.$parent.content == "-") {
+      if (this.content.length == 1 && this.content == "-") {
         if (operation == "-") {
           return;
         }
@@ -43,135 +49,126 @@ export default {
       }
 
       if (
-        (this.$parent.content.substr(this.$parent.content.length - 1) == "*" ||
-          this.$parent.content.substr(this.$parent.content.length - 1) ==
-            "/") &&
+        (this.content.substr(this.content.length - 1) == "*" ||
+          this.content.substr(this.content.length - 1) == "/") &&
         operation == "-"
       ) {
-        this.$parent.content += operation;
+        this.$emit("update:content", `${this.content}${operation}`);
         this.operations.push(operation);
         return;
       } else if (
-        this.$parent.content.substr(this.$parent.content.length - 1) == "+" ||
-        this.$parent.content.substr(this.$parent.content.length - 1) == "-" ||
-        this.$parent.content.substr(this.$parent.content.length - 1) == "*" ||
-        this.$parent.content.substr(this.$parent.content.length - 1) == "/"
+        this.content.substr(this.content.length - 1) == "+" ||
+        this.content.substr(this.content.length - 1) == "-" ||
+        this.content.substr(this.content.length - 1) == "*" ||
+        this.content.substr(this.content.length - 1) == "/"
       ) {
-        this.del();
+        await this.del();
         this.addOperation(operation);
         return;
       }
 
-      if (this.$parent.content == "." || this.$parent.content == "-.") {
+      if (this.content == "." || this.content == "-.") {
         this.reset();
         return;
       } else if (
-        this.$parent.content.substr(this.$parent.content.length - 2) == "+." ||
-        this.$parent.content.substr(this.$parent.content.length - 2) == "-." ||
-        this.$parent.content.substr(this.$parent.content.length - 2) == "*." ||
-        this.$parent.content.substr(this.$parent.content.length - 2) == "/."
+        this.content.substr(this.content.length - 2) == "+." ||
+        this.content.substr(this.content.length - 2) == "-." ||
+        this.content.substr(this.content.length - 2) == "*." ||
+        this.content.substr(this.content.length - 2) == "/."
       ) {
-        this.del();
-        this.del();
+        await this.del();
+        await this.del();
         this.addOperation(operation);
         return;
       }
-
-      this.$parent.content += operation;
+      this.$emit("update:content", `${this.content}${operation}`);
       this.operations.push(operation);
     },
-    addNumber(number) {
+    async addNumber(number) {
       if (number == "0") {
         if (
-          this.$parent.content.substr(this.$parent.content.length - 2) ==
-            "+0" ||
-          this.$parent.content.substr(this.$parent.content.length - 2) ==
-            "-0" ||
-          this.$parent.content.substr(this.$parent.content.length - 2) ==
-            "*0" ||
-          this.$parent.content.substr(this.$parent.content.length - 2) ==
-            "/0" ||
-          this.$parent.content == "0"
+          this.content.substr(this.content.length - 2) == "+0" ||
+          this.content.substr(this.content.length - 2) == "-0" ||
+          this.content.substr(this.content.length - 2) == "*0" ||
+          this.content.substr(this.content.length - 2) == "/0" ||
+          this.content == "0"
         ) {
           return;
         }
       } else {
         if (
-          this.$parent.content.substr(this.$parent.content.length - 2) ==
-            "+0" ||
-          this.$parent.content.substr(this.$parent.content.length - 2) ==
-            "-0" ||
-          this.$parent.content.substr(this.$parent.content.length - 2) ==
-            "*0" ||
-          this.$parent.content.substr(this.$parent.content.length - 2) ==
-            "/0" ||
-          this.$parent.content == "0"
+          this.content.substr(this.content.length - 2) == "+0" ||
+          this.content.substr(this.content.length - 2) == "-0" ||
+          this.content.substr(this.content.length - 2) == "*0" ||
+          this.content.substr(this.content.length - 2) == "/0" ||
+          this.content == "0"
         ) {
-          this.del();
+          await this.del();
         }
       }
-      this.checkInvalid();
-      this.$parent.content += number;
+      await this.checkInvalid();
+      this.$emit("update:content", `${this.content}${number}`);
     },
-    del() {
-      this.checkInvalid();
+    async del() {
+      await this.checkInvalid();
 
-      let last = this.$parent.content.substring(
-        this.$parent.content.length - 1,
-        this.$parent.content.length
+      let last = this.content.substring(
+        this.content.length - 1,
+        this.content.length
       );
       if (last == "+" || last == "-" || last == "/" || last == "*") {
         this.operations.pop();
       }
-      this.$parent.content = this.$parent.content.substring(
-        0,
-        this.$parent.content.length - 1
+      this.$emit(
+        "update:content",
+        this.content.substring(0, this.content.length - 1)
       );
     },
     dot() {
-      let figures = this.$parent.content.split(
+      let figures = this.content.split(
         this.operations[this.operations.length - 1]
       );
       if (figures[figures.length - 1].includes(".")) {
         return;
       } else {
-        this.$parent.content += ".";
+        this.$emit("update:content", `${this.content}.`);
       }
     },
     reset() {
-      this.$parent.content = "";
+      this.$emit("update:content", "");
       this.operations = [];
     },
-    result() {
+    async result() {
       if (
-        this.$parent.content.substr(this.$parent.content.length - 1) == "." ||
-        this.$parent.content.substr(this.$parent.content.length - 1) == "-"
+        this.content.substr(this.content.length - 1) == "." ||
+        this.content.substr(this.content.length - 1) == "-"
       ) {
-        this.del();
+        await this.del();
         this.result();
         return;
       }
 
-      if (this.$parent.content.length == 0) {
+      if (this.content.length == 0) {
         return;
       }
 
       if (
-        this.$parent.content.substr(this.$parent.content.length - 1) == "+" ||
-        this.$parent.content.substr(this.$parent.content.length - 1) == "-" ||
-        this.$parent.content.substr(this.$parent.content.length - 1) == "*" ||
-        this.$parent.content.substr(this.$parent.content.length - 1) == "/"
+        this.content.substr(this.content.length - 1) == "+" ||
+        this.content.substr(this.content.length - 1) == "-" ||
+        this.content.substr(this.content.length - 1) == "*" ||
+        this.content.substr(this.content.length - 1) == "/"
       ) {
-        this.del();
+        await this.del();
       }
-      this.$parent.content = eval(this.$parent.content).toString();
+      this.$emit("update:content", eval(this.content).toString());
       this.operations = [];
     },
     checkInvalid() {
       if (
-        this.$parent.content.toLowerCase() == "nan" ||
-        this.$parent.content.toLowerCase() == "infinity" ||
-        this.$parent.content.toLowerCase() == "error"
+        this.content.toLowerCase() == "nan" ||
+        this.content.toLowerCase() == "infinity" ||
+        this.content.toLowerCase() == "-infinity" ||
+        this.content.toLowerCase() == "error"
       ) {
         this.reset();
       }

@@ -31,11 +31,17 @@
             v-model="picked",
             value="theme3"
           )
-  .screen(role="region", v-text="this.$parent.content")
+  .screen(role="region") {{ content }}
 </template>
 
 <script>
 export default {
+  props: {
+    content: {
+      type: String,
+      default: "",
+    },
+  },
   data() {
     return {
       picked: "theme1",

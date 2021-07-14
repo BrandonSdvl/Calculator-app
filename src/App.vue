@@ -1,7 +1,7 @@
 <template lang="pug">
 #app
-  Top
-  Buttons
+  Top(:content="content")
+  Buttons(:content.sync="content")
   footer.links
     a.links__item(href="http://github.com/brandonsdvl", target="_blank") BrandonSdvl
     span.links__separator @
