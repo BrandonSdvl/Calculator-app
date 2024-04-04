@@ -9,8 +9,8 @@
 </template>
 
 <script>
-import Top from "./components/Top";
-import Buttons from "./components/Buttons";
+import Top from "./components/Top.vue";
+import Buttons from "./components/Buttons.vue";
 
 export default {
   name: "App",

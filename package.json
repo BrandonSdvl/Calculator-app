@@ -2,21 +2,21 @@
   "name": "calculator-app",
   "version": "0.1.0",
   "private": true,
+  "type": "module",
   "scripts": {
-    "serve": "vue-cli-service serve",
-    "build": "vue-cli-service build"
+    "dev": "vite",
+    "build": "vite build",
+    "serve": "vite preview"
   },
   "dependencies": {
-    "core-js": "^3.6.5",
-    "vue": "^2.6.11"
+    "vue": "^3.4.21"
   },
   "devDependencies": {
-    "@vue/cli-plugin-babel": "~4.5.0",
-    "@vue/cli-service": "~4.5.0",
-    "node-sass": "^4.12.0",
-    "sass-loader": "^8.0.2",
-    "vue-cli-plugin-pug": "~2.0.0",
-    "vue-template-compiler": "^2.6.11"
+    "@vitejs/plugin-vue": "^5.0.4",
+    "@vue/language-plugin-pug": "^2.0.7",
+    "pug": "^3.0.2",
+    "sass": "^1.72.0",
+    "vite": "^5.2.7"
   },
   "browserslist": [
     "> 1%",
