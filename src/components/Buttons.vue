@@ -1,3 +1,163 @@
+<script setup>
+import { ref } from 'vue'
+
+const props = defineProps({
+  content: {
+    type: String,
+    default: "",
+  },
+})
+
+const emit = defineEmits(["updateContent"])
+
+const operations = ref([])
+
+const addOperation = async (operation) => {
+  await checkInvalid();
+  if (props.content.length == 0 && operation != "-") {
+    return;
+  }
+
+  if (props.content.length == 1 && props.content == "-") {
+    if (operation == "-") {
+      return;
+    }
+    reset();
+    return;
+  }
+
+  if (
+    (props.content.substr(props.content.length - 1) == "*" ||
+      props.content.substr(props.content.length - 1) == "/") &&
+    operation == "-"
+  ) {
+    emit("updateContent", `${props.content}${operation}`);
+    operations.value.push(operation);
+    return;
+  } else if (
+    props.content.substr(props.content.length - 1) == "+" ||
+    props.content.substr(props.content.length - 1) == "-" ||
+    props.content.substr(props.content.length - 1) == "*" ||
+    props.content.substr(props.content.length - 1) == "/"
+  ) {
+    await del();
+    addOperation(operation);
+    return;
+  }
+
+  if (props.content == "." || props.content == "-.") {
+    reset();
+    return;
+  } else if (
+    props.content.substr(props.content.length - 2) == "+." ||
+    props.content.substr(props.content.length - 2) == "-." ||
+    props.content.substr(props.content.length - 2) == "*." ||
+    props.content.substr(props.content.length - 2) == "/."
+  ) {
+    await del();
+    await del();
+    addOperation(operation);
+    return;
+  }
+  emit("updateContent", `${props.content}${operation}`);
+  operations.value.push(operation);
+}
+
+const addNumber = async (number) => {
+  if (number == "0") {
+    if (
+      props.content.substr(props.content.length - 2) == "+0" ||
+      props.content.substr(props.content.length - 2) == "-0" ||
+      props.content.substr(props.content.length - 2) == "*0" ||
+      props.content.substr(props.content.length - 2) == "/0" ||
+      props.content == "0"
+    ) {
+      return;
+    }
+  } else {
+    if (
+      props.content.substr(props.content.length - 2) == "+0" ||
+      props.content.substr(props.content.length - 2) == "-0" ||
+      props.content.substr(props.content.length - 2) == "*0" ||
+      props.content.substr(props.content.length - 2) == "/0" ||
+      props.content == "0"
+    ) {
+      await del();
+    }
+  }
+  await checkInvalid();
+  emit("updateContent", `${props.content}${number}`);
+}
+
+const del = async () => {
+  await checkInvalid();
+
+  let last = props.content.substring(
+    props.content.length - 1,
+    props.content.length
+  );
+  if (last == "+" || last == "-" || last == "/" || last == "*") {
+    operations.value.pop();
+  }
+
+  emit("updateContent", props.content.substring(0, props.content.length - 1));
+}
+
+const dot = () => {
+  let figures = props.content.split(
+    operations.value[operations.value.length - 1]
+  );
+  if (figures[figures.length - 1].includes(".")) {
+    return;
+  } else {
+    emit("updateContent", `${props.content}.`);
+  }
+}
+
+const reset = () => {
+  emit("updateContent", "");
+  operations.value = [];
+}
+
+const result = async () => {
+  if (
+    props.content.substr(props.content.length - 1) == "." ||
+    props.content.substr(props.content.length - 1) == "-"
+  ) {
+    await del();
+    result();
+    return;
+  }
+
+  if (props.content.length == 0) {
+    return;
+  }
+
+  if (
+    props.content.substr(props.content.length - 1) == "+" ||
+    props.content.substr(props.content.length - 1) == "-" ||
+    props.content.substr(props.content.length - 1) == "*" ||
+    props.content.substr(props.content.length - 1) == "/"
+  ) {
+    await del();
+  }
+
+  emit("updateContent", eval(props.content).toString());
+  operations.value = [];
+}
+
+const checkInvalid = () => {
+  if (
+    props.content.toLowerCase() == "nan" ||
+    props.content.toLowerCase() == "infinity" ||
+    props.content.toLowerCase() == "-infinity" ||
+    props.content.toLowerCase() == "error"
+  ) {
+    reset();
+  }
+}
+</script>
+
 <template lang="pug">
 main.buttons
   button.buttons__item(v-on:click="addNumber('7')") 7
@@ -19,160 +179,3 @@ main.buttons
   button.buttons__item.buttons__item--blue(v-on:click="reset()") RESET
   button.buttons__item.buttons__item--red(v-on:click="result()") =
 </template>
-<script>
-export default {
-  name: "Buttons",
-  props: {
-    content: {
-      type: String,
-      default: "",
-    },
-  },
-  data() {
-    return {
-      operations: [],
-    };
-  },
-  methods: {
-    async addOperation(operation) {
-      await this.checkInvalid();
-      if (this.content.length == 0 && operation != "-") {
-        return;
-      }
-
-      if (this.content.length == 1 && this.content == "-") {
-        if (operation == "-") {
-          return;
-        }
-        this.reset();
-        return;
-      }
-
-      if (
-        (this.content.substr(this.content.length - 1) == "*" ||
-          this.content.substr(this.content.length - 1) == "/") &&
-        operation == "-"
-      ) {
-        this.$emit("update:content", `${this.content}${operation}`);
-        this.operations.push(operation);
-        return;
-      } else if (
-        this.content.substr(this.content.length - 1) == "+" ||
-        this.content.substr(this.content.length - 1) == "-" ||
-        this.content.substr(this.content.length - 1) == "*" ||
-        this.content.substr(this.content.length - 1) == "/"
-      ) {
-        await this.del();
-        this.addOperation(operation);
-        return;
-      }
-
-      if (this.content == "." || this.content == "-.") {
-        this.reset();
-        return;
-      } else if (
-        this.content.substr(this.content.length - 2) == "+." ||
-        this.content.substr(this.content.length - 2) == "-." ||
-        this.content.substr(this.content.length - 2) == "*." ||
-        this.content.substr(this.content.length - 2) == "/."
-      ) {
-        await this.del();
-        await this.del();
-        this.addOperation(operation);
-        return;
-      }
-      this.$emit("update:content", `${this.content}${operation}`);
-      this.operations.push(operation);
-    },
-    async addNumber(number) {
-      if (number == "0") {
-        if (
-          this.content.substr(this.content.length - 2) == "+0" ||
-          this.content.substr(this.content.length - 2) == "-0" ||
-          this.content.substr(this.content.length - 2) == "*0" ||
-          this.content.substr(this.content.length - 2) == "/0" ||
-          this.content == "0"
-        ) {
-          return;
-        }
-      } else {
-        if (
-          this.content.substr(this.content.length - 2) == "+0" ||
-          this.content.substr(this.content.length - 2) == "-0" ||
-          this.content.substr(this.content.length - 2) == "*0" ||
-          this.content.substr(this.content.length - 2) == "/0" ||
-          this.content == "0"
-        ) {
-          await this.del();
-        }
-      }
-      await this.checkInvalid();
-      this.$emit("update:content", `${this.content}${number}`);
-    },
-    async del() {
-      await this.checkInvalid();
-
-      let last = this.content.substring(
-        this.content.length - 1,
-        this.content.length
-      );
-      if (last == "+" || last == "-" || last == "/" || last == "*") {
-        this.operations.pop();
-      }
-      this.$emit(
-        "update:content",
-        this.content.substring(0, this.content.length - 1)
-      );
-    },
-    dot() {
-      let figures = this.content.split(
-        this.operations[this.operations.length - 1]
-      );
-      if (figures[figures.length - 1].includes(".")) {
-        return;
-      } else {
-        this.$emit("update:content", `${this.content}.`);
-      }
-    },
-    reset() {
-      this.$emit("update:content", "");
-      this.operations = [];
-    },
-    async result() {
-      if (
-        this.content.substr(this.content.length - 1) == "." ||
-        this.content.substr(this.content.length - 1) == "-"
-      ) {
-        await this.del();
-        this.result();
-        return;
-      }
-
-      if (this.content.length == 0) {
-        return;
-      }
-
-      if (
-        this.content.substr(this.content.length - 1) == "+" ||
-        this.content.substr(this.content.length - 1) == "-" ||
-        this.content.substr(this.content.length - 1) == "*" ||
-        this.content.substr(this.content.length - 1) == "/"
-      ) {
-        await this.del();
-      }
-      this.$emit("update:content", eval(this.content).toString());
-      this.operations = [];
-    },
-    checkInvalid() {
-      if (
-        this.content.toLowerCase() == "nan" ||
-        this.content.toLowerCase() == "infinity" ||
-        this.content.toLowerCase() == "-infinity" ||
-        this.content.toLowerCase() == "error"
-      ) {
-        this.reset();
-      }
-    },
-  },
-};
-</script>
