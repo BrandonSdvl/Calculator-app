@@ -45,6 +45,15 @@
     display: flex;
     align-items: center;
     flex-direction: column;
+
+    -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+    outline: none;
+
+    &:focus,
+    &:active {
+        outline: none;
+        -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+    }
 }
 
 .label-container {
