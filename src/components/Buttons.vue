@@ -14,89 +14,58 @@ const operations = ref([])
 
 const addOperation = async (operation) => {
   await checkInvalid();
+
+  const endsWithOperatorDot = /[+\-*/]\.$/;
+  const endsWithOperator = /[+\-*/]$/;
+
   if (props.content.length == 0 && operation != "-") {
     return;
   }
 
-  if (props.content.length == 1 && props.content == "-") {
-    if (operation == "-") {
-      return;
-    }
-    reset();
-    return;
-  }
-
   if (
-    (props.content.substr(props.content.length - 1) == "*" ||
-      props.content.substr(props.content.length - 1) == "/") &&
+    (props.content.endsWith("*") ||
+      props.content.endsWith("/")) &&
     operation == "-"
   ) {
     emit("updateContent", `${props.content}${operation}`);
     operations.value.push(operation);
     return;
-  } else if (
-    props.content.substr(props.content.length - 1) == "+" ||
-    props.content.substr(props.content.length - 1) == "-" ||
-    props.content.substr(props.content.length - 1) == "*" ||
-    props.content.substr(props.content.length - 1) == "/"
-  ) {
+  }
+
+  if (endsWithOperator.test(props.content) || endsWithOperatorDot.test(props.content)) {
     await del();
     addOperation(operation);
     return;
   }
 
-  if (props.content == "." || props.content == "-.") {
-    reset();
-    return;
-  } else if (
-    props.content.substr(props.content.length - 2) == "+." ||
-    props.content.substr(props.content.length - 2) == "-." ||
-    props.content.substr(props.content.length - 2) == "*." ||
-    props.content.substr(props.content.length - 2) == "/."
-  ) {
-    await del();
-    await del();
-    addOperation(operation);
-    return;
-  }
   emit("updateContent", `${props.content}${operation}`);
   operations.value.push(operation);
 }
 
 const addNumber = async (number) => {
-  if (number == "0") {
-    if (
-      props.content.substr(props.content.length - 2) == "+0" ||
-      props.content.substr(props.content.length - 2) == "-0" ||
-      props.content.substr(props.content.length - 2) == "*0" ||
-      props.content.substr(props.content.length - 2) == "/0" ||
-      props.content == "0"
-    ) {
+  const endsWithOperatorZero = /[+\-*/]0$/;
+
+  if (props.content === "0") {
+    await del()
+  }
+
+  if (endsWithOperatorZero.test(props.content)) {
+    if (number === "0") {
       return;
-    }
-  } else {
-    if (
-      props.content.substr(props.content.length - 2) == "+0" ||
-      props.content.substr(props.content.length - 2) == "-0" ||
-      props.content.substr(props.content.length - 2) == "*0" ||
-      props.content.substr(props.content.length - 2) == "/0" ||
-      props.content == "0"
-    ) {
-      await del();
+    } else {
+      await del()
     }
   }
+
   await checkInvalid();
   emit("updateContent", `${props.content}${number}`);
 }
 
 const del = async () => {
+  const endsWithOperator = /[+\-*/]$/;
   await checkInvalid();
 
-  let last = props.content.substring(
-    props.content.length - 1,
-    props.content.length
-  );
-  if (last == "+" || last == "-" || last == "/" || last == "*") {
+  if (endsWithOperator.test(props.content)) {
     operations.value.pop();
   }
 
@@ -120,26 +89,15 @@ const reset = () => {
 }
 
 const result = async () => {
-  if (
-    props.content.substr(props.content.length - 1) == "." ||
-    props.content.substr(props.content.length - 1) == "-"
-  ) {
-    await del();
-    result();
-    return;
-  }
-
+  const endsWithOperatorOrDot = /[+\-*/.]$/;
   if (props.content.length == 0) {
     return;
   }
 
-  if (
-    props.content.substr(props.content.length - 1) == "+" ||
-    props.content.substr(props.content.length - 1) == "-" ||
-    props.content.substr(props.content.length - 1) == "*" ||
-    props.content.substr(props.content.length - 1) == "/"
-  ) {
+  if (endsWithOperatorOrDot.test(props.content)) {
     await del();
+    result();
+    return;
   }
 
   emit("updateContent", eval(props.content).toString());
@@ -147,12 +105,8 @@ const result = async () => {
 }
 
 const checkInvalid = () => {
-  if (
-    props.content.toLowerCase() == "nan" ||
-    props.content.toLowerCase() == "infinity" ||
-    props.content.toLowerCase() == "-infinity" ||
-    props.content.toLowerCase() == "error"
-  ) {
+  const invalidValues = ["nan", "infinity", "-infinity", "error"];
+  if (invalidValues.includes(props.content.toLowerCase())) {
     reset();
   }
 }
