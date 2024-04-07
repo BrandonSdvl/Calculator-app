@@ -10,10 +10,15 @@ const props = defineProps({
 })
 
 const savedTheme = localStorage.getItem("theme");
-const initialTheme = savedTheme ? JSON.parse(savedTheme).theme : null;
+
+const initialTheme = (savedTheme && themes.map(theme => theme.name).includes(JSON.parse(savedTheme).theme)) 
+  ? JSON.parse(savedTheme).theme 
+  : null;
+
 const userPrefersLight =
   (window.matchMedia &&
     window.matchMedia("(prefers-color-scheme: light)").matches) ? "theme2" : null;
+    
 const picked = ref(initialTheme || userPrefersLight || "theme1");
 
 const saveTheme = () => {
