@@ -33,6 +33,21 @@
         justify-content: center;
         cursor: pointer;
 
+        -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+        outline: none;
+
+        &:focus,
+        &:active {
+            outline: none;
+            -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+        }
+
+        &:active {
+            padding-bottom: 0;
+            box-shadow: none;
+            transform: translateY(4px);
+        }
+
         &:nth-child(17) {
             grid-column: 1/3;
         }

@@ -1,5 +1,13 @@
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted, onUnmounted } from 'vue'
+
+onMounted(() => {
+  document.addEventListener('keydown', listenKey);
+});
+
+onUnmounted(() => {
+  document.removeEventListener('keydown', listenKey);
+});
 
 const props = defineProps({
   content: {
@@ -11,6 +19,34 @@ const props = defineProps({
 const emit = defineEmits(["updateContent"])
 
 const operations = ref([])
+
+const listenKey = (e) => {
+  switch (e.key) {
+    case '+':
+    case '-':
+    case '*':
+    case '/':
+      addOperation(e.key);
+      break;
+    case '.':
+      dot();
+      break;
+    case 'Backspace':
+      del();
+      break;
+    case 'Escape':
+      reset()
+      break
+    case 'Enter':
+      result()
+      break
+    default:
+      if (!isNaN(e.key)) {
+        addNumber(e.key);
+      }
+      break;
+  }
+}
 
 const addOperation = async (operation) => {
   await checkInvalid();
